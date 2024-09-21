@@ -34,7 +34,7 @@ import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.common.operators.ProcessingTimeService.ProcessingTimeCallback;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.RuntimeContextInitializationContextAdapters;
-import org.apache.flink.api.common.time.Time;
+import java.time.Duration;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.ClosureCleaner;
 import org.apache.flink.api.java.typeutils.ResultTypeQueryable;
@@ -132,10 +132,10 @@ public class FlinkPravegaReader<T>
     final SerializedValue<AssignerWithTimeWindows<T>> assignerWithTimeWindows;
 
     // the timeout for reading events from Pravega
-    final Time eventReadTimeout;
+    final Duration eventReadTimeout;
 
     // the timeout for call that initiates the Pravega checkpoint
-    final Time checkpointInitiateTimeout;
+    final Duration checkpointInitiateTimeout;
 
     // flag to enable/disable metrics
     final boolean enableMetrics;
@@ -184,7 +184,7 @@ public class FlinkPravegaReader<T>
                                  ReaderGroupConfig readerGroupConfig, String readerGroupScope, String readerGroupName,
                                  DeserializationSchema<T> deserializationSchema,
                                  SerializedValue<AssignerWithTimeWindows<T>> assignerWithTimeWindows,
-                                 Time eventReadTimeout, Time checkpointInitiateTimeout,
+                                 Duration eventReadTimeout, Duration checkpointInitiateTimeout,
                                  boolean enableMetrics) {
 
         this.hookUid = Preconditions.checkNotNull(hookUid, "hookUid");
@@ -302,7 +302,7 @@ public class FlinkPravegaReader<T>
             while (this.running) {
                 EventRead<ByteBuffer> eventRead;
                 try {
-                    eventRead = pravegaReader.readNextEvent(eventReadTimeout.toMilliseconds());
+                    eventRead = pravegaReader.readNextEvent(eventReadTimeout.toMillis());
                 } catch (TruncatedDataException e) {
                     // Data is truncated, Force the reader going forward to the next available event
                     continue;

@@ -21,7 +21,7 @@ import io.pravega.connectors.flink.PravegaConfig;
 import io.pravega.connectors.flink.PravegaEventRouter;
 import io.pravega.connectors.flink.PravegaWriterMode;
 import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.flink.api.common.time.Time;
+import java.time.Duration;
 import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.connector.format.EncodingFormat;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
@@ -111,7 +111,7 @@ public class FlinkPravegaDynamicTableSink implements DynamicTableSink {
                 .forStream(stream)
                 .withWriterMode(writerMode)
                 .enableWatermark(enableWatermarkPropagation)
-                .withTxnLeaseRenewalPeriod(Time.milliseconds(txnLeaseRenewalIntervalMillis));
+                .withTxnLeaseRenewalPeriod(Duration.ofMillis(txnLeaseRenewalIntervalMillis));
 
         if (routingKeyFieldName != null) {
             writerBuilder.withEventRouter(new RowDataBasedRouter(routingKeyFieldName, physicalDataType));

@@ -27,7 +27,7 @@ import io.pravega.client.stream.impl.CheckpointImpl;
 import io.pravega.client.stream.impl.MaxNumberOfCheckpointsExceededException;
 import io.pravega.client.stream.impl.StreamCutImpl;
 import io.pravega.connectors.flink.serialization.CheckpointSerializer;
-import org.apache.flink.api.common.time.Time;
+import java.time.Duration;
 import org.apache.flink.util.concurrent.Executors;
 import org.junit.jupiter.api.Test;
 
@@ -54,7 +54,7 @@ public class ReaderCheckpointHookTest {
     public void testConstructor() throws Exception {
         ReaderGroupConfig readerGroupConfig = mock(ReaderGroupConfig.class);
         ClientConfig clientConfig = mock(ClientConfig.class);
-        TestableReaderCheckpointHook hook = new TestableReaderCheckpointHook(HOOK_UID, READER_GROUP_NAME, SCOPE, Time.minutes(1), clientConfig, readerGroupConfig);
+        TestableReaderCheckpointHook hook = new TestableReaderCheckpointHook(HOOK_UID, READER_GROUP_NAME, SCOPE, Duration.ofMinutes(1), clientConfig, readerGroupConfig);
         assertThat(hook.getIdentifier()).isEqualTo(HOOK_UID);
         assertThat(hook.createCheckpointDataSerializer() instanceof CheckpointSerializer).isTrue();
     }
@@ -64,7 +64,7 @@ public class ReaderCheckpointHookTest {
         ReaderGroupConfig readerGroupConfig = mock(ReaderGroupConfig.class);
         ClientConfig clientConfig = mock(ClientConfig.class);
         CompletableFuture<Checkpoint> checkpointPromise = new CompletableFuture<>();
-        TestableReaderCheckpointHook hook = new TestableReaderCheckpointHook(HOOK_UID, READER_GROUP_NAME, SCOPE, Time.minutes(1), clientConfig, readerGroupConfig);
+        TestableReaderCheckpointHook hook = new TestableReaderCheckpointHook(HOOK_UID, READER_GROUP_NAME, SCOPE, Duration.ofMinutes(1), clientConfig, readerGroupConfig);
 
         when(hook.readerGroup.initiateCheckpoint(anyString())).thenReturn(checkpointPromise);
         CompletableFuture<Checkpoint> checkpointFuture = hook.triggerCheckpoint(1L, 1L, Executors.directExecutor());
@@ -84,7 +84,7 @@ public class ReaderCheckpointHookTest {
         ClientConfig clientConfig = mock(ClientConfig.class);
         CompletableFuture<Checkpoint> checkpointPromise = new CompletableFuture<>();
 
-        TestableReaderCheckpointHook hook = new TestableReaderCheckpointHook(HOOK_UID, READER_GROUP_NAME, SCOPE, Time.minutes(1), clientConfig, readerGroupConfig);
+        TestableReaderCheckpointHook hook = new TestableReaderCheckpointHook(HOOK_UID, READER_GROUP_NAME, SCOPE, Duration.ofMinutes(1), clientConfig, readerGroupConfig);
         when(hook.readerGroup.initiateCheckpoint(anyString())).thenReturn(checkpointPromise);
 
         CompletableFuture<Checkpoint> checkpointFuture = hook.triggerCheckpoint(1L, 1L, Executors.directExecutor());
@@ -103,7 +103,7 @@ public class ReaderCheckpointHookTest {
         CompletableFuture<Checkpoint> checkpointPromise = new CompletableFuture<>();
         checkpointPromise.completeExceptionally(new MaxNumberOfCheckpointsExceededException("test"));
 
-        TestableReaderCheckpointHook hook = new TestableReaderCheckpointHook(HOOK_UID, READER_GROUP_NAME, SCOPE, Time.minutes(1), clientConfig, readerGroupConfig);
+        TestableReaderCheckpointHook hook = new TestableReaderCheckpointHook(HOOK_UID, READER_GROUP_NAME, SCOPE, Duration.ofMinutes(1), clientConfig, readerGroupConfig);
         when(hook.readerGroup.initiateCheckpoint(anyString())).thenReturn(checkpointPromise);
 
         CompletableFuture<Checkpoint> checkpointFuture = hook.triggerCheckpoint(1L, 1L, Executors.directExecutor());
@@ -118,7 +118,7 @@ public class ReaderCheckpointHookTest {
     public void testReset() {
         ReaderGroupConfig readerGroupConfig = mock(ReaderGroupConfig.class);
         ClientConfig clientConfig = mock(ClientConfig.class);
-        TestableReaderCheckpointHook hook = new TestableReaderCheckpointHook(HOOK_UID, READER_GROUP_NAME, SCOPE, Time.minutes(1), clientConfig, readerGroupConfig);
+        TestableReaderCheckpointHook hook = new TestableReaderCheckpointHook(HOOK_UID, READER_GROUP_NAME, SCOPE, Duration.ofMinutes(1), clientConfig, readerGroupConfig);
         hook.reset();
         verify(hook.readerGroup).resetReaderGroup(readerGroupConfig);
     }
@@ -127,7 +127,7 @@ public class ReaderCheckpointHookTest {
     public void testClose() {
         ReaderGroupConfig readerGroupConfig = mock(ReaderGroupConfig.class);
         ClientConfig clientConfig = mock(ClientConfig.class);
-        TestableReaderCheckpointHook hook = new TestableReaderCheckpointHook(HOOK_UID, READER_GROUP_NAME, SCOPE, Time.minutes(1), clientConfig, readerGroupConfig);
+        TestableReaderCheckpointHook hook = new TestableReaderCheckpointHook(HOOK_UID, READER_GROUP_NAME, SCOPE, Duration.ofMinutes(1), clientConfig, readerGroupConfig);
         hook.close();
         verify(hook.readerGroup).close();
         verify(hook.readerGroupManager).close();
@@ -152,7 +152,7 @@ public class ReaderCheckpointHookTest {
 
         ClientConfig clientConfig = mock(ClientConfig.class);
 
-        TestableReaderCheckpointHook hook = new TestableReaderCheckpointHook(HOOK_UID, READER_GROUP_NAME, SCOPE, Time.minutes(1), clientConfig, readerGroupConfig);
+        TestableReaderCheckpointHook hook = new TestableReaderCheckpointHook(HOOK_UID, READER_GROUP_NAME, SCOPE, Duration.ofMinutes(1), clientConfig, readerGroupConfig);
 
         hook.restoreCheckpoint(1L, checkpoint);
 
@@ -163,7 +163,7 @@ public class ReaderCheckpointHookTest {
         private Callable<Void> scheduledCallable;
 
         @SuppressWarnings("unchecked")
-        TestableReaderCheckpointHook(String hookUid, String readerGroupName,  String readerGroupScope, Time triggerTimeout, ClientConfig clientConfig, ReaderGroupConfig readerGroupConfig) {
+        TestableReaderCheckpointHook(String hookUid, String readerGroupName,  String readerGroupScope, Duration triggerTimeout, ClientConfig clientConfig, ReaderGroupConfig readerGroupConfig) {
             super(hookUid, readerGroupName, readerGroupScope, triggerTimeout, clientConfig, readerGroupConfig);
         }
 

@@ -21,7 +21,7 @@ import io.pravega.connectors.flink.watermark.AssignerWithTimeWindows;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
-import org.apache.flink.api.common.time.Time;
+import java.time.Duration;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.util.SerializedValue;
 
@@ -40,16 +40,16 @@ import java.util.regex.Pattern;
 @Internal
 public abstract class AbstractStreamingReaderBuilder<T, B extends AbstractStreamingReaderBuilder> extends AbstractReaderBuilder<B> {
 
-    private static final Time DEFAULT_EVENT_READ_TIMEOUT = Time.seconds(1);
-    private static final Time DEFAULT_CHECKPOINT_INITIATE_TIMEOUT = Time.seconds(5);
+    private static final Duration DEFAULT_EVENT_READ_TIMEOUT = Duration.ofSeconds(1);
+    private static final Duration DEFAULT_CHECKPOINT_INITIATE_TIMEOUT = Duration.ofSeconds(5);
     private static final int  DEFAULT_MAX_OUTSTANDING_CHECKPOINT_REQUEST = 3;
 
     public String uid;
     public String readerGroupScope;
     public String readerGroupName;
-    public Time readerGroupRefreshTime;
-    public Time checkpointInitiateTimeout;
-    public Time eventReadTimeout;
+    public Duration readerGroupRefreshTime;
+    public Duration checkpointInitiateTimeout;
+    public Duration eventReadTimeout;
     public int maxOutstandingCheckpointRequest;
 
     protected AbstractStreamingReaderBuilder() {
@@ -101,7 +101,7 @@ public abstract class AbstractStreamingReaderBuilder<T, B extends AbstractStream
      * @param groupRefreshTime The group refresh time
      * @return A builder to configure and create a streaming reader.
      */
-    public B withReaderGroupRefreshTime(Time groupRefreshTime) {
+    public B withReaderGroupRefreshTime(Duration groupRefreshTime) {
         this.readerGroupRefreshTime = groupRefreshTime;
         return builder();
     }
@@ -112,8 +112,8 @@ public abstract class AbstractStreamingReaderBuilder<T, B extends AbstractStream
      * @param checkpointInitiateTimeout The timeout
      * @return A builder to configure and create a streaming reader.
      */
-    public B withCheckpointInitiateTimeout(Time checkpointInitiateTimeout) {
-        Preconditions.checkArgument(checkpointInitiateTimeout.getSize() > 0, "timeout must be > 0");
+    public B withCheckpointInitiateTimeout(Duration checkpointInitiateTimeout) {
+        Preconditions.checkArgument(!checkpointInitiateTimeout.isNegative() && !checkpointInitiateTimeout.isZero(), "timeout must be > 0");
         this.checkpointInitiateTimeout = checkpointInitiateTimeout;
         return builder();
     }
@@ -125,8 +125,8 @@ public abstract class AbstractStreamingReaderBuilder<T, B extends AbstractStream
      * @param eventReadTimeout The timeout
      * @return A builder to configure and create a streaming reader.
      */
-    public B withEventReadTimeout(Time eventReadTimeout) {
-        Preconditions.checkArgument(eventReadTimeout.getSize() > 0, "timeout must be > 0");
+    public B withEventReadTimeout(Duration eventReadTimeout) {
+        Preconditions.checkArgument(!eventReadTimeout.isNegative() && !eventReadTimeout.isZero(), "timeout must be > 0");
         this.eventReadTimeout = eventReadTimeout;
         return builder();
     }
@@ -185,7 +185,7 @@ public abstract class AbstractStreamingReaderBuilder<T, B extends AbstractStream
                 .maxOutstandingCheckpointRequest(this.maxOutstandingCheckpointRequest)
                 .disableAutomaticCheckpoints();
         if (this.readerGroupRefreshTime != null) {
-            rgConfigBuilder.groupRefreshTimeMillis(this.readerGroupRefreshTime.toMilliseconds());
+            rgConfigBuilder.groupRefreshTimeMillis(this.readerGroupRefreshTime.toMillis());
         }
         resolveStreams().forEach(s -> rgConfigBuilder.stream(s.getStream(), s.getFrom(), s.getTo()));
         final ReaderGroupConfig rgConfig = rgConfigBuilder.build();

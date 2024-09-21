@@ -47,7 +47,7 @@ import io.pravega.connectors.flink.watermark.LowerBoundAssigner;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
-import org.apache.flink.api.common.time.Time;
+import java.time.Duration;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.ClosureCleaner;
 import org.apache.flink.api.java.utils.ParameterTool;
@@ -104,13 +104,13 @@ public class FlinkPravegaReaderTest {
     private static final StreamCut SAMPLE_CUT = new StreamCutImpl(SAMPLE_STREAM, Collections.singletonMap(SAMPLE_SEGMENT, 42L));
     private static final StreamCut SAMPLE_CUT2 = new StreamCutImpl(SAMPLE_STREAM, Collections.singletonMap(SAMPLE_SEGMENT, 1024L));
 
-    private static final Time GROUP_REFRESH_TIME = Time.seconds(10);
+    private static final Duration GROUP_REFRESH_TIME = Duration.ofSeconds(10);
     private static final String GROUP_NAME = "group";
 
     private static final IntegerDeserializationSchema DESERIALIZATION_SCHEMA = new TestDeserializationSchema();
     private static final IntegerSerializer SERIALIZER = new IntegerSerializer();
-    private static final Time READER_TIMEOUT = Time.seconds(1);
-    private static final Time CHKPT_TIMEOUT = Time.seconds(1);
+    private static final Duration READER_TIMEOUT = Duration.ofSeconds(1);
+    private static final Duration CHKPT_TIMEOUT = Duration.ofSeconds(1);
     private static final int MAX_OUTSTANDING_CHECKPOINT_REQUEST = 5;
 
     // region Source Function Tests
@@ -501,7 +501,7 @@ public class FlinkPravegaReaderTest {
         assertThat(reader.clientConfig).isNotNull();
         assertThat(reader.readerGroupConfig.getAutomaticCheckpointIntervalMillis()).isEqualTo(-1L);
         assertThat(reader.readerGroupConfig.getMaxOutstandingCheckpointRequest()).isEqualTo(MAX_OUTSTANDING_CHECKPOINT_REQUEST);
-        assertThat(reader.readerGroupConfig.getGroupRefreshTimeMillis()).isEqualTo(GROUP_REFRESH_TIME.toMilliseconds());
+        assertThat(reader.readerGroupConfig.getGroupRefreshTimeMillis()).isEqualTo(GROUP_REFRESH_TIME.toMillis());
         assertThat(reader.readerGroupName).isEqualTo(GROUP_NAME);
         assertThat(reader.readerGroupConfig.getStartingStreamCuts()).isEqualTo(Collections.singletonMap(SAMPLE_STREAM, SAMPLE_CUT));
         assertThat(reader.deserializationSchema).isEqualTo(DESERIALIZATION_SCHEMA);
@@ -560,7 +560,7 @@ public class FlinkPravegaReaderTest {
                 .withReaderGroupScope(SAMPLE_SCOPE)
                 .withReaderGroupName(GROUP_NAME)
                 .forStream(SAMPLE_STREAM, SAMPLE_CUT, SAMPLE_CUT2)
-                .withEventReadTimeout(Time.seconds(42L));
+                .withEventReadTimeout(Duration.ofSeconds(42L));
         String uid2 = builder2.generateUid();
 
         TestableStreamingReaderBuilder builder3 = new TestableStreamingReaderBuilder()
@@ -670,7 +670,7 @@ public class FlinkPravegaReaderTest {
                                              ReaderGroupConfig readerGroupConfig, String readerGroupScope,
                                              String readerGroupName, DeserializationSchema<T> deserializationSchema,
                                              SerializedValue<AssignerWithTimeWindows<T>> assignerWithTimeWindows,
-                                             Time eventReadTimeout, Time checkpointInitiateTimeout,
+                                             Duration eventReadTimeout, Duration checkpointInitiateTimeout,
                                              boolean enableMetrics) {
             super(hookUid, clientConfig, readerGroupConfig, readerGroupScope, readerGroupName, deserializationSchema,
                     assignerWithTimeWindows, eventReadTimeout, checkpointInitiateTimeout, enableMetrics);

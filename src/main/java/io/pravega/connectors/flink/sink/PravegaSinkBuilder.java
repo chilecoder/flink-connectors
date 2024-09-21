@@ -20,7 +20,7 @@ import io.pravega.connectors.flink.PravegaConfig;
 import io.pravega.connectors.flink.PravegaEventRouter;
 import io.pravega.connectors.flink.PravegaWriterMode;
 import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.flink.api.common.time.Time;
+import java.time.Duration;
 import org.apache.flink.connector.base.DeliveryGuarantee;
 import org.apache.flink.util.Preconditions;
 
@@ -38,7 +38,7 @@ public class PravegaSinkBuilder<T> {
     private PravegaConfig pravegaConfig = PravegaConfig.fromDefaults();
     private String stream;
     private DeliveryGuarantee deliveryGuarantee = DeliveryGuarantee.AT_LEAST_ONCE;
-    private Time txnLeaseRenewalPeriod = Time.milliseconds(DEFAULT_TXN_LEASE_RENEWAL_PERIOD_MILLIS);
+    private Duration txnLeaseRenewalPeriod = Duration.ofMillis(DEFAULT_TXN_LEASE_RENEWAL_PERIOD_MILLIS);
     private SerializationSchema<T> serializationSchema;
     @Nullable
     private PravegaEventRouter<T> eventRouter;
@@ -126,8 +126,8 @@ public class PravegaSinkBuilder<T> {
      * @param period the lease renewal period
      * @return A builder to configure and create a sink.
      */
-    public PravegaSinkBuilder<T> withTxnLeaseRenewalPeriod(Time period) {
-        Preconditions.checkArgument(period.getSize() > 0, "The timeout must be a positive value.");
+    public PravegaSinkBuilder<T> withTxnLeaseRenewalPeriod(Duration period) {
+        Preconditions.checkArgument(!period.isNegative() && !period.isZero(), "The timeout must be a positive value.");
         this.txnLeaseRenewalPeriod = period;
         return this;
     }
@@ -175,7 +175,7 @@ public class PravegaSinkBuilder<T> {
             return new PravegaTransactionalSink<>(
                     pravegaConfig.getClientConfig(),
                     resolveStream(),
-                    txnLeaseRenewalPeriod.toMilliseconds(),
+                    txnLeaseRenewalPeriod.toMillis(),
                     serializationSchema,
                     eventRouter);
         } else {

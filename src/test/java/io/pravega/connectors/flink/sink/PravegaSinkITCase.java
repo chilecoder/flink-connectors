@@ -25,7 +25,7 @@ import io.pravega.connectors.flink.utils.runtime.PravegaRuntime;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.flink.api.common.time.Time;
+import java.time.Duration;
 import org.apache.flink.connector.base.DeliveryGuarantee;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -83,7 +83,7 @@ public class PravegaSinkITCase extends AbstractTestBase {
                 .withSerializationSchema(new IntSerializer())
                 .withEventRouter(event -> "fixedkey")
                 .withDeliveryGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
-                .withTxnLeaseRenewalPeriod(Time.seconds(30))
+                .withTxnLeaseRenewalPeriod(Duration.ofSeconds(30))
                 .build();
 
         env
@@ -112,7 +112,7 @@ public class PravegaSinkITCase extends AbstractTestBase {
                 .withSerializationSchema(new IntSerializer())
                 .withEventRouter(event -> "fixedkey")
                 .withDeliveryGuarantee(DeliveryGuarantee.EXACTLY_ONCE)
-                .withTxnLeaseRenewalPeriod(Time.seconds(30))
+                .withTxnLeaseRenewalPeriod(Duration.ofSeconds(30))
                 .build();
 
         env
@@ -140,7 +140,7 @@ public class PravegaSinkITCase extends AbstractTestBase {
                 .withPravegaConfig(PRAVEGA.operator().getPravegaConfig())
                 .withSerializationSchema(new IntSerializer())
                 .withDeliveryGuarantee(DeliveryGuarantee.EXACTLY_ONCE)
-                .withTxnLeaseRenewalPeriod(Time.seconds(30))
+                .withTxnLeaseRenewalPeriod(Duration.ofSeconds(30))
                 .build();
 
         env
@@ -169,7 +169,7 @@ public class PravegaSinkITCase extends AbstractTestBase {
                 .withSerializationSchema(new IntSerializer())
                 .withEventRouter(event -> "fixedkey")
                 .withDeliveryGuarantee(DeliveryGuarantee.EXACTLY_ONCE)
-                .withTxnLeaseRenewalPeriod(Time.seconds(30))
+                .withTxnLeaseRenewalPeriod(Duration.ofSeconds(30))
                 .build();
 
         env
@@ -199,7 +199,7 @@ public class PravegaSinkITCase extends AbstractTestBase {
                 .withSerializationSchema(new IntSerializer())
                 .withEventRouter(event -> "fixedkey")
                 .withDeliveryGuarantee(DeliveryGuarantee.EXACTLY_ONCE)
-                .withTxnLeaseRenewalPeriod(Time.seconds(30))
+                .withTxnLeaseRenewalPeriod(Duration.ofSeconds(30))
                 .build();
 
         env

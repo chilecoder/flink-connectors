@@ -17,7 +17,7 @@ package io.pravega.connectors.flink;
 
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.flink.api.common.time.Time;
+import java.time.Duration;
 import org.apache.flink.util.Preconditions;
 
 /**
@@ -36,12 +36,12 @@ public abstract class AbstractStreamingWriterBuilder<T, B extends AbstractStream
 
     public PravegaWriterMode writerMode;
     public boolean enableWatermark;
-    public Time txnLeaseRenewalPeriod;
+    public Duration txnLeaseRenewalPeriod;
 
     protected AbstractStreamingWriterBuilder() {
         writerMode = PravegaWriterMode.ATLEAST_ONCE;
         enableWatermark = false;
-        txnLeaseRenewalPeriod = Time.milliseconds(DEFAULT_TXN_LEASE_RENEWAL_PERIOD_MILLIS);
+        txnLeaseRenewalPeriod = Duration.ofMillis(DEFAULT_TXN_LEASE_RENEWAL_PERIOD_MILLIS);
     }
 
     /**
@@ -77,8 +77,8 @@ public abstract class AbstractStreamingWriterBuilder<T, B extends AbstractStream
      * @param period the lease renewal period
      * @return A builder to configure and create a streaming writer.
      */
-    public B withTxnLeaseRenewalPeriod(Time period) {
-        Preconditions.checkArgument(period.getSize() > 0, "The timeout must be a positive value.");
+    public B withTxnLeaseRenewalPeriod(Duration period) {
+        Preconditions.checkArgument(!period.isNegative() && !period.isZero(), "The timeout must be a positive value.");
         this.txnLeaseRenewalPeriod = period;
         return builder();
     }
@@ -98,7 +98,7 @@ public abstract class AbstractStreamingWriterBuilder<T, B extends AbstractStream
                 serializationSchema,
                 eventRouter,
                 writerMode,
-                txnLeaseRenewalPeriod.toMilliseconds(),
+                txnLeaseRenewalPeriod.toMillis(),
                 enableWatermark,
                 isMetricsEnabled());
     }

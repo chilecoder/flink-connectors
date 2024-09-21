@@ -20,7 +20,7 @@ import io.pravega.connectors.flink.FlinkPravegaReader;
 import io.pravega.connectors.flink.PravegaConfig;
 import io.pravega.connectors.flink.util.StreamWithBoundaries;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
-import org.apache.flink.api.common.time.Time;
+import java.time.Duration;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.connector.format.DecodingFormat;
@@ -194,9 +194,9 @@ public class FlinkPravegaDynamicTableSource implements ScanTableSource, Supports
             FlinkPravegaReader.Builder<RowData> readerBuilder = FlinkPravegaReader.<RowData>builder()
                     .withPravegaConfig(pravegaConfig)
                     .withDeserializationSchema(deserializationSchema)
-                    .withReaderGroupRefreshTime(Time.milliseconds(readerGroupRefreshTimeMillis))
-                    .withCheckpointInitiateTimeout(Time.milliseconds(checkpointInitiateTimeoutMillis))
-                    .withEventReadTimeout(Time.milliseconds(eventReadTimeoutMillis))
+                    .withReaderGroupRefreshTime(Duration.ofMillis(readerGroupRefreshTimeMillis))
+                    .withCheckpointInitiateTimeout(Duration.ofMillis(checkpointInitiateTimeoutMillis))
+                    .withEventReadTimeout(Duration.ofMillis(eventReadTimeoutMillis))
                     .withMaxOutstandingCheckpointRequest(maxOutstandingCheckpointRequest);
             Optional.ofNullable(readerGroupName).ifPresent(readerBuilder::withReaderGroupName);
 

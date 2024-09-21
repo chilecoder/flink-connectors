@@ -29,7 +29,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.flink.api.common.time.Time;
+import java.time.Duration;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -172,7 +172,7 @@ public class FlinkPravegaWriterITCase {
                 .withSerializationSchema(new IntSerializer())
                 .withEventRouter(event -> "fixedkey")
                 .withWriterMode(PravegaWriterMode.EXACTLY_ONCE)
-                .withTxnLeaseRenewalPeriod(Time.seconds(30))
+                .withTxnLeaseRenewalPeriod(Duration.ofSeconds(30))
                 .build();
 
         env
@@ -202,7 +202,7 @@ public class FlinkPravegaWriterITCase {
                 .withSerializationSchema(new IntSerializer())
                 .withEventRouter(event -> "fixedkey")
                 .withWriterMode(PravegaWriterMode.EXACTLY_ONCE)
-                .withTxnLeaseRenewalPeriod(Time.seconds(30))
+                .withTxnLeaseRenewalPeriod(Duration.ofSeconds(30))
                 .build();
 
         env
@@ -231,7 +231,7 @@ public class FlinkPravegaWriterITCase {
                 .withPravegaConfig(PRAVEGA.operator().getPravegaConfig())
                 .withSerializationSchema(new IntSerializer())
                 .withWriterMode(PravegaWriterMode.EXACTLY_ONCE)
-                .withTxnLeaseRenewalPeriod(Time.seconds(30))
+                .withTxnLeaseRenewalPeriod(Duration.ofSeconds(30))
                 .enableWatermark(true)
                 .build();
 

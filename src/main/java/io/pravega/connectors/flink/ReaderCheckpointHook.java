@@ -23,7 +23,7 @@ import io.pravega.client.stream.ReaderGroupConfig;
 import io.pravega.client.stream.ReaderGroupNotFoundException;
 import io.pravega.client.stream.impl.MaxNumberOfCheckpointsExceededException;
 import io.pravega.connectors.flink.serialization.CheckpointSerializer;
-import org.apache.flink.api.common.time.Time;
+import java.time.Duration;
 import org.apache.flink.core.io.SimpleVersionedSerializer;
 import org.apache.flink.runtime.checkpoint.MasterTriggerRestoreHook;
 import org.slf4j.Logger;
@@ -69,7 +69,7 @@ class ReaderCheckpointHook implements MasterTriggerRestoreHook<Checkpoint> {
     private final CheckpointSerializer checkpointSerializer;
 
     /** The timeout on the future returned by the 'initiateCheckpoint()' call */
-    private final Time triggerTimeout;
+    private final Duration triggerTimeout;
 
     // The Pravega reader group config.
     private final ReaderGroupConfig readerGroupConfig;
@@ -80,7 +80,7 @@ class ReaderCheckpointHook implements MasterTriggerRestoreHook<Checkpoint> {
     @GuardedBy("scheduledExecutorLock")
     private ScheduledExecutorService scheduledExecutorService;
 
-    ReaderCheckpointHook(String hookUid, String readerGroupName,  String readerGroupScope, Time triggerTimeout, ClientConfig clientConfig, ReaderGroupConfig readerGroupConfig) {
+    ReaderCheckpointHook(String hookUid, String readerGroupName,  String readerGroupScope, Duration triggerTimeout, ClientConfig clientConfig, ReaderGroupConfig readerGroupConfig) {
         this.hookUid = checkNotNull(hookUid);
         this.triggerTimeout = triggerTimeout;
         this.readerGroupConfig = readerGroupConfig;
@@ -123,7 +123,7 @@ class ReaderCheckpointHook implements MasterTriggerRestoreHook<Checkpoint> {
                         });
 
         // Add a timeout to the future, to prevent long blocking calls
-        scheduledExecutorService.schedule(() -> checkpointResult.cancel(false), triggerTimeout.toMilliseconds(), TimeUnit.MILLISECONDS);
+        scheduledExecutorService.schedule(() -> checkpointResult.cancel(false), triggerTimeout.toMillis(), TimeUnit.MILLISECONDS);
 
         return checkpointResult;
     }

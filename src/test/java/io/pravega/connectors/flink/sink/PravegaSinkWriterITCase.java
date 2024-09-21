@@ -25,7 +25,7 @@ import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.operators.MailboxExecutor;
 import org.apache.flink.api.common.operators.ProcessingTimeService;
 import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.flink.api.common.time.Time;
+import java.time.Duration;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
 import org.apache.flink.api.connector.sink2.Sink;
 import org.apache.flink.api.connector.sink2.SinkWriter;
@@ -125,7 +125,7 @@ public class PravegaSinkWriterITCase {
                     new SinkInitContext(sinkWriterMetricGroup),
                     operator.getClientConfig(),
                     stream,
-                    Time.milliseconds(DEFAULT_TXN_LEASE_RENEWAL_PERIOD_MILLIS).toMilliseconds(),
+                    Duration.ofMillis(DEFAULT_TXN_LEASE_RENEWAL_PERIOD_MILLIS).toMillis(),
                     new IntSerializer(),
                     router);
         } else if (guarantee == DeliveryGuarantee.AT_LEAST_ONCE || guarantee == DeliveryGuarantee.NONE) {
